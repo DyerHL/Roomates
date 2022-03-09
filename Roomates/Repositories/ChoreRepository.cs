@@ -95,10 +95,10 @@ namespace Roomates.Repositories
                 conn.Open ();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT DISTINCT c.[Name]
+                    cmd.CommandText = @"SELECT c.Id,
+                                               c.[Name]
                                         FROM Chore c
-                                        Left Join RoommateChore rc on rc.ChoreId = c.Id
-                                        Left Join Roommate r on r.id = rc.RoommateId
+                                        Left Join RoommateChore rc ON rc.ChoreId = c.Id
                                         Where rc.ChoreId IS NULL";
                     SqlDataReader reader = cmd.ExecuteReader();
                     
@@ -124,5 +124,69 @@ namespace Roomates.Repositories
                 }
             }
         }
+
+        public bool AssignChore(int choreId, int roommateId)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @" INSERT INTO RoommateChore
+                                                (ChoreId,
+                                                 RoommateId)
+                                         Values (@choreId,
+                                                  @roomateId)";
+                    cmd.Parameters.AddWithValue("@choreId", choreId);
+                    cmd.Parameters.AddWithValue("@roommateId", roommateId);
+
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
+        public List<Chore> GetAllChoresForAssignment()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"Select Id, 
+		                                        CASE WHEN EXISTS (SELECT *
+						                                          FROM Chore other
+						                                          Left Join RoommateChore on ChoreId = other.Id
+						                                          WHERE ChoreId IS NULL
+							                                        AND other.Id = c.Id)
+			                                        THEN Name + '*'
+			                                        ELSE Name 
+		                                        END AS Name
+                                        FROM Chore c";
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    List<Chore> chores = new List<Chore>();
+
+                    while (reader.Read())
+                    {
+                        int idColumnPosition = reader.GetOrdinal("Id");
+                        int idValue = reader.GetInt32(idColumnPosition);
+
+                        int nameColumnPosition = reader.GetOrdinal("Name");
+                        string nameValue = reader.GetString(nameColumnPosition);
+
+                        Chore chore = new Chore
+                        {
+                            Id = idValue,
+                            Name = nameValue
+                        };
+                        chores.Add(chore);
+                    }
+                    reader.Close();
+                    return chores;
+                }
+            }
+        }
+
     }
 }
