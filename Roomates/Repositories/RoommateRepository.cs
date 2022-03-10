@@ -27,7 +27,7 @@ namespace Roomates.Repositories
                                         FROM Roommate rm
                                         LEFT JOIN Room r ON 
                                              r.Id = rm.RoomID
-                                        WHERE rm.Id = @id";
+                                        WHERE rm.RoomId = r.id";
                    
                     SqlDataReader reader = cmd.ExecuteReader();
                     List<Roommate> roommates = new List<Roommate>();

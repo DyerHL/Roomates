@@ -137,7 +137,7 @@ namespace Roomates.Repositories
                                                 (ChoreId,
                                                  RoommateId)
                                          Values (@choreId,
-                                                  @roomateId)";
+                                                  @roommateId)";
                     cmd.Parameters.AddWithValue("@choreId", choreId);
                     cmd.Parameters.AddWithValue("@roommateId", roommateId);
 
@@ -169,16 +169,13 @@ namespace Roomates.Repositories
 
                     while (reader.Read())
                     {
-                        int idColumnPosition = reader.GetOrdinal("Id");
-                        int idValue = reader.GetInt32(idColumnPosition);
-
-                        int nameColumnPosition = reader.GetOrdinal("Name");
-                        string nameValue = reader.GetString(nameColumnPosition);
+                        int id = reader.GetInt32(reader.GetOrdinal("Id"));
+                        string name = reader.GetString(reader.GetOrdinal("Name"));
 
                         Chore chore = new Chore
                         {
-                            Id = idValue,
-                            Name = nameValue
+                            Id = id,
+                            Name = name
                         };
                         chores.Add(chore);
                     }

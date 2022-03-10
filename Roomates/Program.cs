@@ -131,7 +131,7 @@ namespace Roommates
                         {
                             Console.WriteLine($"{rm.Id} - {rm.FirstName}");
                         }
-                        Console.WriteLine("Roomate Id: ");
+                        Console.WriteLine("Roommate Id: ");
                         int rmToAssign = int.Parse(Console.ReadLine());
 
                         if(choreRepo.AssignChore(choreToAssign, rmToAssign))
